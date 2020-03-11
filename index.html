@@ -4,23 +4,26 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" type="text/scss" href="scss/carousel.scss">
     <link rel="stylesheet" type="text/scss" href="scss/styles.scss">
-
     <!-- Load Babel -->
     <script type="text/javascript" src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script type="text/javascript" src="scripts/carousel.js"></script>
+    <script type="text/javascript" src="scripts/demo.js"></script>
 </head>
 
 <body>
-
-    <div id="output"></div>
+    <div id="my-carousel"></div>
 </body>
 
 <script type="text/javascript">
-    var carousel = new Carousel({
-        container: 'Container message'
-    });
-
-    console.log(carousel.container);
+    window.onload = function () {
+        var carousel = new Carousel({
+            container: 'my-carousel',
+            title: "Fresh and just uploaded content",
+            subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            fetchCards: function (chunkSize) {
+                
+            }
+        });
+    }
 </script>
 
 </html>

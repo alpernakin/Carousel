@@ -9,6 +9,7 @@
     $carousel_grey: #9c9c9c;
     $shadow_color: rgba(156,156,156,0.5);
     $overlay_color: rgba(0, 0, 0, 0.5);
+    $loading_grey: #e4e4e4;
 
     .header {
         display: flex;
@@ -51,7 +52,7 @@
     .body {
         padding-top: 2em;
 
-        .slide-content {
+        .carousel {
             $box_shadow: 0 .1em .1em .03em $shadow_color;
             $card_full_width: 15em;
             $card_full_height: 17em;
@@ -61,110 +62,155 @@
             // card height + collection bars height + shadow height
             $slide_full_height: $card_full_height + $collection_bottom_height * 2 + .2em;
 
-            overflow: hidden;
-            display: flex;
-            position: relative;
             cursor: pointer;
-            height: $slide_full_height;
+            position: relative;
 
-            .bottom-bars {
-                display: none;
-            }
-
-            .box-shadow {
-                position: relative;
-                box-shadow: $box_shadow;
-                -moz-box-shadow: $box_shadow;
-                -webkit-box-shadow: $box_shadow;
-            }
-
-            .card {
-
-                width: $card_full_width;
-    
-                .image-container {
-                    position: relative;
-                    img {
-                        height: $card_image_height;
-                    }
-                    .label {
-                        position: absolute;
-                        bottom: 0;
-                        font-size: 1em;
-                        height: 2em;
-                        line-height: 2em;
-                        background: $overlay_color;
-                        color: $carousel_white;
-                        padding: 0 .5em;
-                        font-weight: bold;
-                    }
-                    .type {
-                        @extend .label;
-                        left: 0;
-                    }
-                    .duration {
-                        @extend .label;
-                        right: 0;
-                    }
-                }
-                .description-container {
-                    z-index: 99;
-                    height: $card_full_height - $card_image_height;
-                    background: $carousel_white;
-                    @extend .box-shadow;
-    
-                    .content {
-                        padding: 1em;
-                        height: inherit;
-    
-                        .description {
-                            font-size: 1.25em;
-                            font-weight: bold;
-                            color: $carousel_blue;
-                        }
-                        .language {
-                            padding-top: 1.5em;
-                            font-size: 1em;
-                            color: $carousel_grey;
-                        }
-                    }
-                }
-            }
-
-            .card:not(:first-child) {
-                padding-left: 1em;
-            }
-
-            .collection {
-                .bar {
-                    height: $collection_bottom_height;
-                    background: $carousel_white;
-                    @extend .box-shadow;
-                }
+            .card-container {
+                overflow: hidden;
+                display: flex;
+                height: $slide_full_height;
 
                 .bottom-bars {
-                    display: block;
-
-                    .bar1 {
-                        @extend .bar;
-                        z-index: 98;
-                        margin: 0 $collection_bottom_margin;
+                    display: none;
+                }
+    
+                .box-shadow {
+                    box-shadow: $box_shadow;
+                    -moz-box-shadow: $box_shadow;
+                    -webkit-box-shadow: $box_shadow;
+                }
+    
+                .card {
+                    .image-container {
+                        position: relative;
+                        .image {
+                            background-color: $loading_grey;
+                            width: $card_full_width;
+                            height: $card_image_height;
+                        }
+                        .transparent-label {
+                            position: absolute;
+                            font-size: 1em;
+                            height: 2em;
+                            line-height: 2em;
+                            background: $overlay_color;
+                            color: $carousel_white;
+                            padding: 0 .5em;
+                            font-weight: bold;
+                        }
                     }
-                    .bar2 {
-                        @extend .bar;
-                        z-index: 97;
-                        margin: 0 $collection_bottom_margin * 2;
+                    .description-container {
+                        z-index: 99;
+                        height: $card_full_height - $card_image_height;
+                        background: $carousel_white;
+                        position: relative;
+                        @extend .box-shadow;
+        
+                        .content {
+                            padding: 1em;
+                            height: inherit;
+        
+                            .description {
+                                font-size: 1.25em;
+                                font-weight: bold;
+                                color: $carousel_blue;
+                            }
+                            .language {
+                                padding-top: 1.5em;
+                                font-size: 1em;
+                                color: $carousel_grey;
+                            }
+                        }
+                    }
+                }
+    
+                .card:not(:first-child) {
+                    padding-left: 1em;
+                }
+    
+                .collection {
+                    .bar {
+                        height: $collection_bottom_height;
+                        background: $carousel_white;
+                        position: relative;
+                        @extend .box-shadow;
+                    }
+    
+                    .bottom-bars {
+                        display: block;
+    
+                        .bar1 {
+                            @extend .bar;
+                            z-index: 98;
+                            margin: 0 $collection_bottom_margin;
+                        }
+                        .bar2 {
+                            @extend .bar;
+                            z-index: 97;
+                            margin: 0 $collection_bottom_margin * 2;
+                        }
+                    }
+                }
+
+                .placeholder {
+                    // source https://codepen.io/JCLee/pen/dyPejGV
+                    .skeleton-box {
+                        background: $loading_grey;
+                        &::after {
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            bottom: 0;
+                            left: 0;
+                            transform: translateX(-100%);
+                            background-image: linear-gradient(
+                              90deg,
+                              rgba(#fff, 0) 0,
+                              rgba(#fff, 0.2) 20%,
+                              rgba(#fff, 0.5) 60%,
+                              rgba(#fff, 0)
+                            );
+                            animation: shimmer 2s infinite;
+                            content: '';
+                        }
+                        @keyframes shimmer {
+                            100% {
+                                transform: translateX(100%);
+                            }
+                        }
+                    }
+
+                    .skeleton-bar {
+                        height: .8em;
+                    }
+                    .image-container {
+                        .image {
+                            @extend .skeleton-box;
+                        }
+                    }
+                    .description-container {
+                        .row {
+                            position: absolute;
+                            display: flex;
+                            align-items: baseline;
+                            justify-content: space-between;
+                        }
+
+                        .line {
+                            @extend .skeleton-box;
+                            @extend .skeleton-bar;
+                        }
                     }
                 }
             }
 
             .slider {
-                $slider_width: 5em;
-                $arrow_size: 2.5em;
+                $slider_width: 3em;
+                $arrow_size: 2em;
 
                 z-index: 999;
                 position: absolute;
-                height: $slide_full_height;
+                height: $card_full_height;
                 width: $slider_width;
                 background: $overlay_color;
 
@@ -174,17 +220,9 @@
                     color: $carousel_white;
                     margin: auto;
                     left: (em2px($slider_width, 1em) - em2px($arrow_size, 1em)) / 2;
-                    top: (em2px($slide_full_height, 1em) - em2px($arrow_size, 1em)) / 2;
+                    top: (em2px($card_full_height, 1em) - em2px($arrow_size, 1em)) / 2;
                 }
-            }
-
-            .slider-left {
-                left: 0;
-            }
-            .slider-right {
-                right: 0;
             }
         }
     }
 }
-

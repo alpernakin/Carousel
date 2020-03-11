@@ -26,28 +26,27 @@
 
 .carousel-container .body {
   padding-top: 2em; }
-  .carousel-container .body .slide-content {
-    overflow: hidden;
-    display: flex;
-    position: relative;
+  .carousel-container .body .carousel {
     cursor: pointer;
-    height: 17.8em; }
-    .carousel-container .body .slide-content .bottom-bars {
-      display: none; }
-    .carousel-container .body .slide-content .box-shadow, .carousel-container .body .slide-content .card .description-container, .carousel-container .body .slide-content .collection .bar, .carousel-container .body .slide-content .collection .bottom-bars .bar1, .carousel-container .body .slide-content .collection .bottom-bars .bar2 {
-      position: relative;
-      box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5);
-      -moz-box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5);
-      -webkit-box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5); }
-    .carousel-container .body .slide-content .card {
-      width: 15em; }
-      .carousel-container .body .slide-content .card .image-container {
+    position: relative; }
+    .carousel-container .body .carousel .card-container {
+      overflow: hidden;
+      display: flex;
+      height: 17.8em; }
+      .carousel-container .body .carousel .card-container .bottom-bars {
+        display: none; }
+      .carousel-container .body .carousel .card-container .box-shadow, .carousel-container .body .carousel .card-container .card .description-container, .carousel-container .body .carousel .card-container .collection .bar, .carousel-container .body .carousel .card-container .collection .bottom-bars .bar1, .carousel-container .body .carousel .card-container .collection .bottom-bars .bar2 {
+        box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5);
+        -moz-box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5);
+        -webkit-box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5); }
+      .carousel-container .body .carousel .card-container .card .image-container {
         position: relative; }
-        .carousel-container .body .slide-content .card .image-container img {
+        .carousel-container .body .carousel .card-container .card .image-container .image {
+          background-color: #e4e4e4;
+          width: 15em;
           height: 7.5em; }
-        .carousel-container .body .slide-content .card .image-container .label, .carousel-container .body .slide-content .card .image-container .type, .carousel-container .body .slide-content .card .image-container .duration {
+        .carousel-container .body .carousel .card-container .card .image-container .transparent-label {
           position: absolute;
-          bottom: 0;
           font-size: 1em;
           height: 2em;
           line-height: 2em;
@@ -55,52 +54,69 @@
           color: #ffffff;
           padding: 0 .5em;
           font-weight: bold; }
-        .carousel-container .body .slide-content .card .image-container .type {
-          left: 0; }
-        .carousel-container .body .slide-content .card .image-container .duration {
-          right: 0; }
-      .carousel-container .body .slide-content .card .description-container {
+      .carousel-container .body .carousel .card-container .card .description-container {
         z-index: 99;
         height: 9.5em;
-        background: #ffffff; }
-        .carousel-container .body .slide-content .card .description-container .content {
+        background: #ffffff;
+        position: relative; }
+        .carousel-container .body .carousel .card-container .card .description-container .content {
           padding: 1em;
           height: inherit; }
-          .carousel-container .body .slide-content .card .description-container .content .description {
+          .carousel-container .body .carousel .card-container .card .description-container .content .description {
             font-size: 1.25em;
             font-weight: bold;
             color: #2865a7; }
-          .carousel-container .body .slide-content .card .description-container .content .language {
+          .carousel-container .body .carousel .card-container .card .description-container .content .language {
             padding-top: 1.5em;
             font-size: 1em;
             color: #9c9c9c; }
-    .carousel-container .body .slide-content .card:not(:first-child) {
-      padding-left: 1em; }
-    .carousel-container .body .slide-content .collection .bar, .carousel-container .body .slide-content .collection .bottom-bars .bar1, .carousel-container .body .slide-content .collection .bottom-bars .bar2 {
-      height: 0.3em;
-      background: #ffffff; }
-    .carousel-container .body .slide-content .collection .bottom-bars {
-      display: block; }
-      .carousel-container .body .slide-content .collection .bottom-bars .bar1 {
-        z-index: 98;
-        margin: 0 0.2em; }
-      .carousel-container .body .slide-content .collection .bottom-bars .bar2 {
-        z-index: 97;
-        margin: 0 0.4em; }
-    .carousel-container .body .slide-content .slider {
+      .carousel-container .body .carousel .card-container .card:not(:first-child) {
+        padding-left: 1em; }
+      .carousel-container .body .carousel .card-container .collection .bar, .carousel-container .body .carousel .card-container .collection .bottom-bars .bar1, .carousel-container .body .carousel .card-container .collection .bottom-bars .bar2 {
+        height: 0.3em;
+        background: #ffffff;
+        position: relative; }
+      .carousel-container .body .carousel .card-container .collection .bottom-bars {
+        display: block; }
+        .carousel-container .body .carousel .card-container .collection .bottom-bars .bar1 {
+          z-index: 98;
+          margin: 0 0.2em; }
+        .carousel-container .body .carousel .card-container .collection .bottom-bars .bar2 {
+          z-index: 97;
+          margin: 0 0.4em; }
+      .carousel-container .body .carousel .card-container .placeholder .skeleton-box, .carousel-container .body .carousel .card-container .placeholder .image-container .image, .carousel-container .body .carousel .card-container .placeholder .description-container .line {
+        background: #e4e4e4; }
+        .carousel-container .body .carousel .card-container .placeholder .skeleton-box::after, .carousel-container .body .carousel .card-container .placeholder .image-container .image::after, .carousel-container .body .carousel .card-container .placeholder .description-container .line::after {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0));
+          animation: shimmer 2s infinite;
+          content: ''; }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%); } }
+      .carousel-container .body .carousel .card-container .placeholder .skeleton-bar, .carousel-container .body .carousel .card-container .placeholder .description-container .line {
+        height: .8em; }
+      .carousel-container .body .carousel .card-container .placeholder .description-container .row {
+        position: absolute;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between; }
+    .carousel-container .body .carousel .slider {
       z-index: 999;
       position: absolute;
-      height: 17.8em;
-      width: 5em;
+      height: 17em;
+      width: 3em;
       background: rgba(0, 0, 0, 0.5); }
-      .carousel-container .body .slide-content .slider .arrow {
+      .carousel-container .body .carousel .slider .arrow {
         position: absolute;
-        font-size: 2.5em;
+        font-size: 2em;
         color: #ffffff;
         margin: auto;
-        left: 20px;
-        top: 122.4px; }
-    .carousel-container .body .slide-content .slider-left {
-      left: 0; }
-    .carousel-container .body .slide-content .slider-right {
-      right: 0; }
+        left: 8px;
+        top: 120px; }
