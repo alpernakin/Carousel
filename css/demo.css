@@ -1,0 +1,106 @@
+.carousel-container .header {
+  display: flex;
+  align-items: center; }
+  .carousel-container .header .icon-container {
+    flex: 0; }
+    .carousel-container .header .icon-container .icon {
+      color: #ffffff;
+      background: #2865a7;
+      font-size: 2em;
+      padding: .3em .4em;
+      border-radius: .2em; }
+  .carousel-container .header .title-container {
+    flex: 1 0;
+    padding-left: 2em; }
+    .carousel-container .header .title-container .title {
+      font-size: 1.8em;
+      color: #2865a7;
+      display: flex;
+      align-items: center; }
+      .carousel-container .header .title-container .title .arrow {
+        font-size: 1em;
+        font-weight: bold; }
+    .carousel-container .header .title-container .subtitle {
+      font-size: 1em;
+      color: #9c9c9c; }
+
+.carousel-container .body {
+  padding-top: 2em; }
+  .carousel-container .body .slide-content {
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    cursor: pointer;
+    height: 17.8em; }
+    .carousel-container .body .slide-content .bottom-bars {
+      display: none; }
+    .carousel-container .body .slide-content .box-shadow, .carousel-container .body .slide-content .card .description-container, .carousel-container .body .slide-content .collection .bar, .carousel-container .body .slide-content .collection .bottom-bars .bar1, .carousel-container .body .slide-content .collection .bottom-bars .bar2 {
+      position: relative;
+      box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5);
+      -moz-box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5);
+      -webkit-box-shadow: 0 0.1em 0.1em 0.03em rgba(156, 156, 156, 0.5); }
+    .carousel-container .body .slide-content .card {
+      width: 15em; }
+      .carousel-container .body .slide-content .card .image-container {
+        position: relative; }
+        .carousel-container .body .slide-content .card .image-container img {
+          height: 7.5em; }
+        .carousel-container .body .slide-content .card .image-container .label, .carousel-container .body .slide-content .card .image-container .type, .carousel-container .body .slide-content .card .image-container .duration {
+          position: absolute;
+          bottom: 0;
+          font-size: 1em;
+          height: 2em;
+          line-height: 2em;
+          background: rgba(0, 0, 0, 0.5);
+          color: #ffffff;
+          padding: 0 .5em;
+          font-weight: bold; }
+        .carousel-container .body .slide-content .card .image-container .type {
+          left: 0; }
+        .carousel-container .body .slide-content .card .image-container .duration {
+          right: 0; }
+      .carousel-container .body .slide-content .card .description-container {
+        z-index: 99;
+        height: 9.5em;
+        background: #ffffff; }
+        .carousel-container .body .slide-content .card .description-container .content {
+          padding: 1em;
+          height: inherit; }
+          .carousel-container .body .slide-content .card .description-container .content .description {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #2865a7; }
+          .carousel-container .body .slide-content .card .description-container .content .language {
+            padding-top: 1.5em;
+            font-size: 1em;
+            color: #9c9c9c; }
+    .carousel-container .body .slide-content .card:not(:first-child) {
+      padding-left: 1em; }
+    .carousel-container .body .slide-content .collection .bar, .carousel-container .body .slide-content .collection .bottom-bars .bar1, .carousel-container .body .slide-content .collection .bottom-bars .bar2 {
+      height: 0.3em;
+      background: #ffffff; }
+    .carousel-container .body .slide-content .collection .bottom-bars {
+      display: block; }
+      .carousel-container .body .slide-content .collection .bottom-bars .bar1 {
+        z-index: 98;
+        margin: 0 0.2em; }
+      .carousel-container .body .slide-content .collection .bottom-bars .bar2 {
+        z-index: 97;
+        margin: 0 0.4em; }
+    .carousel-container .body .slide-content .slider {
+      z-index: 999;
+      position: absolute;
+      height: 17.8em;
+      width: 5em;
+      background: rgba(0, 0, 0, 0.5); }
+      .carousel-container .body .slide-content .slider .arrow {
+        position: absolute;
+        font-size: 2.5em;
+        color: #ffffff;
+        margin: auto;
+        left: 20px;
+        top: 122.4px; }
+    .carousel-container .body .slide-content .slider-left {
+      left: 0; }
+    .carousel-container .body .slide-content .slider-right {
+      right: 0; }

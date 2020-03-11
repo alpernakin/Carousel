@@ -1,0 +1,26 @@
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" type="text/scss" href="scss/carousel.scss">
+    <link rel="stylesheet" type="text/scss" href="scss/styles.scss">
+
+    <!-- Load Babel -->
+    <script type="text/javascript" src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/javascript" src="scripts/carousel.js"></script>
+</head>
+
+<body>
+
+    <div id="output"></div>
+</body>
+
+<script type="text/javascript">
+    var carousel = new Carousel({
+        container: 'Container message'
+    });
+
+    console.log(carousel.container);
+</script>
+
+</html>
