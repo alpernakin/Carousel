@@ -49,7 +49,7 @@ const cssClass = {
     rightArrow: "slider top right",
 }
 
-class Carousel {
+export default class Carousel {
     containerEl;
     cardContainerEl;
     leftArrowEl;
@@ -91,6 +91,9 @@ class Carousel {
                 </div>
             </div>`;
 
+        // bind the fetch cards event
+        this.fetchCardsCallback = options.fetchCards;
+        // initialize the container
         this.containerEl = document.getElementById(options.container);
         this.containerEl.className = cssClass.container;
         // add the tempate to the root / container
@@ -110,6 +113,8 @@ class Carousel {
                     }
                 });
         });
+        // first item load
+        this.fetch();
     }
 
     /**
@@ -139,7 +144,7 @@ class Carousel {
         return false;
     }
 
-    async next() {
+    async fetch() {
 
     }
 
@@ -148,6 +153,14 @@ class Carousel {
     }
 
     async addPlaceholders() {
+
+    }
+
+    async next(numberOfCards = 1, callback) {
+
+    }
+
+    async prev(numberOfCards = 1, callback) {
 
     }
 }
