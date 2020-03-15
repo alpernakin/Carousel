@@ -1,13 +1,13 @@
-@function em2px($target, $context: $base-font-size-em) {
+@function em2px($target) {
     @if $target == 0 { @return 0 }
-    @return ($target / 1em) * ($context / 1em) * 16 + 0px;
+    @return ($target / 1em) * 16 + 0px;
 }
 
 .carousel-container {
     $carousel_blue: #2865a7;
     $carousel_white: #ffffff;
     $carousel_grey: #9c9c9c;
-    $shadow_color: rgba(156,156,156,0.5);
+    $shadow_color: rgba(156, 156, 156, 0.5);
     $overlay_color: rgba(0, 0, 0, 0.5);
     $loading_grey: #e4e4e4;
 
@@ -58,7 +58,7 @@
             $card_full_height: 17em;
             $card_image_height: 7.5em;
             $collection_bottom_margin: .2em;
-            $collection_bottom_height: .3em;
+            $collection_bottom_height: .18em;
             // card height + collection bars height + shadow height
             $slide_full_height: $card_full_height + $collection_bottom_height * 2 + .2em;
 
@@ -81,16 +81,18 @@
                 }
     
                 .card {
+                    width: $card_full_width;
+                    min-width: $card_full_width;
                     .image-container {
                         position: relative;
                         .image {
+                            width: 100%;
                             background-color: $loading_grey;
-                            width: $card_full_width;
                             height: $card_image_height;
                         }
                         .transparent-label {
                             position: absolute;
-                            font-size: 1em;
+                            font-size: .75em;
                             height: 2em;
                             line-height: 2em;
                             background: $overlay_color;
@@ -111,9 +113,15 @@
                             height: inherit;
         
                             .description {
-                                font-size: 1.25em;
+                                font-size: 1em;
                                 font-weight: bold;
                                 color: $carousel_blue;
+                                height: 50%;
+                                // unfortunately, this does not work for firefox and edge
+                                overflow: hidden;
+                                display: -webkit-box;
+                                -webkit-line-clamp: 3;
+                                -webkit-box-orient: vertical; 
                             }
                             .language {
                                 padding-top: 1.5em;
@@ -125,7 +133,7 @@
                 }
     
                 .card:not(:first-child) {
-                    padding-left: 1em;
+                    margin-left: 1em;
                 }
     
                 .collection {
@@ -189,17 +197,27 @@
                         }
                     }
                     .description-container {
-                        .row {
-                            position: absolute;
+                        .ske-row {
                             display: flex;
                             align-items: baseline;
                             justify-content: space-between;
                         }
-
-                        .line {
+                        .ske-line {
                             @extend .skeleton-box;
                             @extend .skeleton-bar;
                         }
+                    }
+                }
+
+                .see-more {
+                    background-color: $carousel_blue;
+                    color: $carousel_white;
+                    font-weight: bold;
+                    height: $card_full_height;
+
+                    .content {
+                        padding: 1.2em;
+                        font-size: 2.5em;
                     }
                 }
             }
@@ -209,6 +227,7 @@
                 $arrow_size: 2em;
 
                 z-index: 999;
+                display: none;
                 position: absolute;
                 height: $card_full_height;
                 width: $slider_width;
@@ -219,10 +238,36 @@
                     font-size: $arrow_size;
                     color: $carousel_white;
                     margin: auto;
-                    left: (em2px($slider_width, 1em) - em2px($arrow_size, 1em)) / 2;
-                    top: (em2px($card_full_height, 1em) - em2px($arrow_size, 1em)) / 2;
+                    left: (em2px($slider_width) - em2px($arrow_size)) / 2;
+                    top: (em2px($card_full_height) - em2px($arrow_size)) / 2;
                 }
             }
         }
+    }
+
+    // extras
+
+    .d-none {
+        display: none !important;
+    }
+    
+    .d-block {
+        display: block !important;
+    }
+    
+    .left {
+        left: 0;
+    }
+    
+    .right {
+        right: 0;
+    }
+    
+    .bottom {
+        bottom: 0;
+    }
+    
+    .top {
+        top: 0;
     }
 }
