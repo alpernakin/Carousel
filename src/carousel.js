@@ -4,6 +4,7 @@ export class Options {
     title = "";
     subtitle = "";
     fetchCards = Promise.resolve(null);
+    chunkSize = 6;
 }
 
 /** card type definition */
@@ -20,7 +21,7 @@ export class Card {
 export class Carousel {
     /** carousel container */
     containerEl = null;
-    /** the container for the cards and scroll */
+    /** the container for the card slide */
     cardContainerEl = null;
     /** overlay arrow to go prev */
     leftArrowEl = null;
@@ -89,42 +90,40 @@ export class Carousel {
 
     /** @param {Options} options */
     constructor(options) {
+        this.chunkSize = options.chunkSize;
         // bind the fetch cards event
         this.fetchCards = options.fetchCards;
         // initialize the container
         this.containerEl = document.getElementById(options.container);
         this.containerEl.className = this.css.container;
-        // add the header & body tempates to the container
+        // add the header, body and slide templates in the container
         this.containerEl.appendChild(this.createCarouselHeaderElement({ title: options.title, subtitle: options.subtitle }));
         this.containerEl.appendChild(this.createCarouselBodyElement());
         this.cardContainerEl = this.containerEl.getElementsByClassName(this.css.cardContainer)[0];
-        // scrolling overlays
+        // initialize slider overlays
         this.leftArrowEl = this.containerEl.getElementsByClassName(this.css.leftArrow)[0];
         this.rightArrowEl = this.containerEl.getElementsByClassName(this.css.rightArrow)[0];
-        // bind scrolling events
-        this.rightArrowEl.addEventListener('click', () => this.next());
-        this.leftArrowEl.addEventListener('click', () => this.prev());
-        // make first card load into the carousel
+        // bind prev / next events
+        this.bindSliderEvent();
+        // bind the mouse in and out events for slider visibility state
+        this.bindHoverEvent();
+        // bind the touch events for swiping
+        this.bindSwipeEvent();
+        // make first card load into the carousel / slide
         this.loadCards().then(cardElements => {
             // if there is no card returned by the API
-            // nothing to do then
             if (!cardElements || !cardElements.length) return;
-            // set the card width
+            // set the card width to understand the number of visible cards
             this.cardWidth = cardElements[0].clientWidth;
-            // we find out the number of cards to slide after the first load
             this.numberOfVisibleCards = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
             // it also points out the most right visible card
             this.mostRightVisibleIndex = Math.min(this.numberOfVisibleCards, cardElements.length) - 1;
             // if the number of cards are in chunk size
-            // it means that there would be more cards
+            // it means that there would be more cards coming
             if (cardElements.length === this.chunkSize)
                 this.addSeeMoreCard();
-            // bind the mouse in and out events for slider state
-            this.initHoverEvent();
-            // bind the touch events for swiping
-            this.initSwipeEvent();
             // emit the event first batch loaded
-            this.emitFirstBatchLoadEvent(cardElements);
+            this.createFirstBatchLoadEvent(cardElements);
         });
     }
 
@@ -132,7 +131,7 @@ export class Carousel {
      * listens first batch load event
      * @param {(event: CustomEvent) => {}} callback
      */
-    onFirstBatchLoaded(callback) {
+    listenFirstBatchLoad(callback) {
         // if no callback provided, no need to listen the event
         if (!callback) return;
         // listen the event first batch
@@ -144,13 +143,13 @@ export class Carousel {
      * emit the first batch loaded event
      * @param {HTMLElement[]} cards 
      */
-    emitFirstBatchLoadEvent(cards) {
+    createFirstBatchLoadEvent(cards) {
         this.onFirstBatchEventEmitter
             .dispatchEvent(new CustomEvent('firstbatch', { detail: { cards: cards } }));
     }
 
     /** bind events for swiping the carousel */
-    initSwipeEvent() {
+    bindSwipeEvent() {
         if (!this.cardContainerEl)
             throw Error("The card container has not been instanced.");
         // x coordinate of the last touch
@@ -183,8 +182,20 @@ export class Carousel {
         });
     }
 
+    /** @returns {boolean} if the left arrow is visible */
+    isLeftSliderArrowVisible() {
+        // if the most left visible card is not the first one
+        return this.mostLeftVisibleIndex !== 0;
+    }
+
+    /** @returns {boolean} if the right arrow is visible */
+    isRightSliderArrowVisible() {
+        // if there are more cards after the most right visible card,
+        return this.mostRightVisibleIndex < this.numberOfCards - 1;
+    }
+
     /** bind events for left - right arrow visibility states */
-    initHoverEvent() {
+    bindHoverEvent() {
         if (!this.containerEl)
             throw Error("The container has not been instanced.");
         if (!this.leftArrowEl)
@@ -197,12 +208,8 @@ export class Carousel {
         let clearDisplayCSS = (element) => element.classList.remove(this.css.d_none, this.css.d_block);
         // when the mouse is over the root container
         this.containerEl.addEventListener('mouseover', () => {
-            // if the carousel scroll is on the most left, invisible; else visible
-            let arrowLeftClass = this.cardContainerEl.scrollLeft === 0 ?
-                this.css.d_none : this.css.d_block;
-            // if there are no more cards after the most right visible card, invisible; else visible
-            let arrowRightClass = (this.mostRightVisibleIndex + 1) >= this.numberOfCards ?
-                this.css.d_none : this.css.d_block;
+            let arrowLeftClass = this.isLeftSliderArrowVisible() ? this.css.d_block : this.css.d_none;
+            let arrowRightClass = this.isRightSliderArrowVisible() ? this.css.d_block : this.css.d_none;
             // clear the classes
             clearDisplayCSS(this.leftArrowEl);
             clearDisplayCSS(this.rightArrowEl);
@@ -215,6 +222,17 @@ export class Carousel {
             clearDisplayCSS(this.leftArrowEl);
             clearDisplayCSS(this.rightArrowEl);
         });
+    }
+
+    /** bind slider events */
+    bindSliderEvent() {
+        if (!this.leftArrowEl)
+            throw Error("The left arrow has not been instanced.");
+        if (!this.rightArrowEl)
+            throw Error("The right arrow has not been intanced.");
+
+        this.rightArrowEl.addEventListener('click', () => this.next());
+        this.leftArrowEl.addEventListener('click', () => this.prev());
     }
 
     /**
@@ -522,6 +540,7 @@ export class Carousel {
      * @param {HTMLElement} element to slide
      */
     slideTo(element) {
-        element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+        if (element)
+            element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
     }
 }

@@ -6,30 +6,21 @@ import chai from 'chai';
 import 'jsdom-global/register';
 
 describe('Carousel', () => {
-    /** @returns {Options} dummy options */
-    let createDummyOptions = ({ container, title, subtitle, fetchCards }) => {
-        return {
-            container: container,
-            title: title,
-            subtitle: subtitle,
-            fetchCards: fetchCards
-        };
-    };
-
-    /** @returns {Carousel} dummy carousel object */
-    let createDummyCarousel = ({ chunkSize, container, title, subtitle, fetchCards } = {
+    /** 
+     * @param {Options} options
+     * @returns {Carousel} dummy carousel object 
+     */
+    let createDummyCarousel = (options = {
         chunkSize: 6,
         container: 'my-carousel',
         title: 'title',
         subtitle: 'subtitle',
-        fetchCards: (size) => new FakeRestApi().request(chunkSize, 1, 0)
+        fetchCards: (_chunkSize) => new FakeRestApi().request(_chunkSize, 1, 0)
     }) => {
-        // dummy options
-        let dummyOptions = createDummyOptions({ container: container, title: title, subtitle, fetchCards: fetchCards });
         // dummy HTML content
         document.body.innerHTML = `<html><body><div id="my-carousel"></div></body></html>`;
         // create the carousel
-        return new Carousel(dummyOptions);
+        return new Carousel(options);
     };
 
     beforeEach(() => { });
@@ -50,18 +41,24 @@ describe('Carousel', () => {
 
     it('should assign css properties', () => {
         let carousel = createDummyCarousel();
-        chai.expect(carousel.containerEl.className).to.equal(carousel.css.container);
-        chai.expect(carousel.cardContainerEl.className).to.equal(carousel.css.cardContainer);
+        chai.expect(carousel.containerEl.className).equal(carousel.css.container);
+        chai.expect(carousel.cardContainerEl.className).equal(carousel.css.cardContainer);
         // todo .. add more comparisons
     });
 
     it('should load cards', (done) => {
-        let carousel = createDummyCarousel();
+        let carousel = createDummyCarousel({
+            container: 'my-carousel',
+            chunkSize: 4,
+            // less card than the chunk size please (we don't need a see more card here)
+            fetchCards: (_chunkSize) => new FakeRestApi().request(2)
+        });
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
-            let cards = carousel.getCardElements();
+        carousel.listenFirstBatchLoad(event => {
             // they should exist
-            chai.should().exist(cards);
+            chai.should().exist(event.detail.cards);
+            // and must match with number of cards
+            chai.expect(carousel.numberOfCards).equal(event.detail.cards.length);
             // done with the test
             done();
         });
@@ -70,7 +67,7 @@ describe('Carousel', () => {
     it('should add a card', (done) => {
         let carousel = createDummyCarousel();
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
+        carousel.listenFirstBatchLoad(() => {
             let numberOfCards = carousel.numberOfCards;
             // dummy card object
             let dummyCard = carousel.createCardElement({});
@@ -87,7 +84,7 @@ describe('Carousel', () => {
     it('should remove a card', (done) => {
         let carousel = createDummyCarousel();
         // after the first batch loaded
-        carousel.onFirstBatchLoaded((event) => {
+        carousel.listenFirstBatchLoad(event => {
             let numberOfCards = carousel.numberOfCards;
             // remove any card from the carousel
             carousel.removeCard(event.detail.cards[0]);
@@ -99,15 +96,15 @@ describe('Carousel', () => {
         });
     });
 
-    it('should add a see more card on chunk size', (done) => {
+    it('should add a see more card when cards in chunk size are fetched', (done) => {
         // the fake rest api will return in chunk size
         let carousel = createDummyCarousel({
             chunkSize: 6,
             container: 'my-carousel',
-            fetchCards: (chunkSize) => new FakeRestApi().request(chunkSize, chunkSize, 0)
+            fetchCards: (_chunkSize) => new FakeRestApi().request(_chunkSize, _chunkSize, 0)
         });
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
+        carousel.listenFirstBatchLoad(() => {
             // if the rest api returns in the chunk size
             // the card at the end of the carousel must be see more
             let card = carousel.getCardElements().item(carousel.chunkSize);
@@ -117,26 +114,41 @@ describe('Carousel', () => {
         });
     });
 
-    it('should measure the card size properly', (done) => {
+    it('should know the card width', (done) => {
         let carousel = createDummyCarousel();
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
-            let firstCard = carousel.getCardElements()[0];
+        carousel.listenFirstBatchLoad(event => {
             // width of the first card must match with the card width in carousel
-            chai.expect(firstCard.clientWidth).to.equal(carousel.cardWidth);
+            chai.expect(event.detail.cards[0].clientWidth).equal(carousel.cardWidth);
             // done with the test
             done();
         });
     });
 
-    it('should display left and right slider arrows accordingly', () => {
+    it('should display the left and right arrows accordingly', (done) => {
         let carousel = createDummyCarousel({
             chunkSize: 6,
             container: 'my-carousel',
             fetchCards: (chunkSize) => new FakeRestApi().request(chunkSize, chunkSize, 0)
         });
-
-        // todo add display check
+        // after the first batch loaded
+        carousel.listenFirstBatchLoad(() => {
+            // should not display the left arrow
+            carousel.mostLeftVisibleIndex = 0;
+            chai.expect(carousel.isLeftSliderArrowVisible()).equal(false);
+            // should show the left arrow
+            carousel.mostLeftVisibleIndex = 1;
+            chai.expect(carousel.isLeftSliderArrowVisible()).equal(true);
+            // should not display the right arrow
+            // 7 cards are expected with see more card 6 + 1
+            carousel.mostRightVisibleIndex = 6;
+            chai.expect(carousel.isRightSliderArrowVisible()).equal(false);
+            // should display the right arrow
+            carousel.mostRightVisibleIndex = 5;
+            chai.expect(carousel.isRightSliderArrowVisible()).equal(true);
+            // done with the test
+            done();
+        });
     });
 
     it('should move indexes properly', (done) => {
@@ -145,7 +157,7 @@ describe('Carousel', () => {
             fetchCards: (_chunkSize) => new FakeRestApi().request(6, 6, 0)
         });
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
+        carousel.listenFirstBatchLoad(() => {
             carousel.mostRightVisibleIndex = 3;
             carousel.mostLeftVisibleIndex = 1;
             // move 2 items forward
@@ -161,65 +173,63 @@ describe('Carousel', () => {
         });
     });
 
-    it('should not move left', (done) => {
-        let carousel = createDummyCarousel({
-            container: 'my-carousel',
-            fetchCards: (_chunkSize) => new FakeRestApi().request(10, 10, 0)
-        });
+    it('should move left properly', (done) => {
+        let carousel = createDummyCarousel();
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
-            // stub the method, as we don't need html activity
+        carousel.listenFirstBatchLoad(() => {
+            // stub the method, as we don't need any html activity
             carousel.slideTo = (_element) => {}
-            // number of visible cards in the carousel
-            carousel.numberOfVisibleCards = 4;
-            carousel.mostRightVisibleIndex = 3;
-            carousel.mostLeftVisibleIndex = 0;
-            // as the carousel is on the most left, it should not move
-            carousel.prev(5);
-            chai.expect(carousel.mostRightVisibleIndex).to.equal(3);
-            chai.expect(carousel.mostLeftVisibleIndex).to.equal(0);
-            // done with the test
-            done();
-        });
-    });
 
-    it('should move left', (done) => {
-        let carousel = createDummyCarousel({
-            container: 'my-carousel',
-            fetchCards: (_chunkSize) => new FakeRestApi().request(10, 10, 0)
-        });
-        // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
-            // stub the method, as we don't need html activity
-            carousel.slideTo = (_element) => {}
-            // number of visible cards in the carousel
-            carousel.numberOfVisibleCards = 4;
             carousel.mostRightVisibleIndex = 7;
             carousel.mostLeftVisibleIndex = 4;
-            // as the carousel is on the most left
+            // it should move 4 cards left
             carousel.prev(5);
-            chai.expect(carousel.mostRightVisibleIndex).to.equal(3);
-            chai.expect(carousel.mostLeftVisibleIndex).to.equal(0);
+            chai.expect(carousel.mostRightVisibleIndex).equal(3);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(0);
+            // it should not move left
+            carousel.prev(1);
+            chai.expect(carousel.mostRightVisibleIndex).equal(3);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(0);
+            // let's move 2 cards right
+            carousel.next(2);
+            // it should move 2 cards left, not 4
+            carousel.prev(4);
+            chai.expect(carousel.mostRightVisibleIndex).equal(3);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(0);
             // done with the test
             done();
         });
     });
 
-    it('should move right', (done) => {
+    it('should move right properly', (done) => {
         let carousel = createDummyCarousel({
+            chunkSize: 6,
             container: 'my-carousel',
-            fetchCards: (_chunkSize) => new FakeRestApi().request(6, 6, 0)
+            fetchCards: (_chunkSize) => new FakeRestApi().request(_chunkSize, _chunkSize, 0)
         });
         // after the first batch loaded
-        carousel.onFirstBatchLoaded(() => {
+        carousel.listenFirstBatchLoad(() => {
             // stub the method, as we don't need html activity
             carousel.slideTo = (_element) => {}
-            // 3rd element is on the most right of the carousel
-            carousel.mostRightVisibleIndex = 2;
 
+            // the total number of cards will be 6 + 1 = 7 because of see more card
+
+            carousel.mostRightVisibleIndex = 3;
+            carousel.mostLeftVisibleIndex = 0;
+            // it should move 3 cards right
             carousel.next(3);
-            chai.expect(carousel.mostRightVisibleIndex).to.equal(5);
-            chai.expect(carousel.mostLeftVisibleIndex).to.equal(3);
+            chai.expect(carousel.mostRightVisibleIndex).equal(6);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(3);
+            // it should not move
+            carousel.next(1);
+            chai.expect(carousel.mostRightVisibleIndex).equal(6);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(3);
+            // move the slide 2 cards left
+            carousel.prev(2);
+            // it should move 2 cards right, not 3
+            carousel.next(3);
+            chai.expect(carousel.mostRightVisibleIndex).equal(6);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(3);
             // done with the test
             done();
         });
