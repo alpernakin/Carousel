@@ -22,7 +22,7 @@ describe('Carousel', () => {
         container: 'my-carousel',
         title: 'title',
         subtitle: 'subtitle',
-        fetchCards: (size) => new FakeRestApi().request(chunkSize, 1, 100)
+        fetchCards: (size) => new FakeRestApi().request(chunkSize, 1, 0)
     }) => {
         // dummy options
         let dummyOptions = createDummyOptions({ container: container, title: title, subtitle, fetchCards: fetchCards });
@@ -144,32 +144,84 @@ describe('Carousel', () => {
             container: 'my-carousel',
             fetchCards: (_chunkSize) => new FakeRestApi().request(6, 6, 0)
         });
-        // 3rd element is on the most right of the carousel
-        carousel.mostRightVisibleIndex = 2;
+        // after the first batch loaded
+        carousel.onFirstBatchLoaded(() => {
+            carousel.mostRightVisibleIndex = 3;
+            carousel.mostLeftVisibleIndex = 1;
+            // move 2 items forward
+            carousel.moveIndexes(2);
+            chai.expect(carousel.mostRightVisibleIndex).equal(5);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(3);
+            // move 3 items backward
+            carousel.moveIndexes(-3)
+            chai.expect(carousel.mostRightVisibleIndex).equal(2);
+            chai.expect(carousel.mostLeftVisibleIndex).equal(0);
+            // done with the test
+            done();
+        });
+    });
+
+    it('should not move left', (done) => {
+        let carousel = createDummyCarousel({
+            container: 'my-carousel',
+            fetchCards: (_chunkSize) => new FakeRestApi().request(10, 10, 0)
+        });
+        // after the first batch loaded
+        carousel.onFirstBatchLoaded(() => {
+            // stub the method, as we don't need html activity
+            carousel.slideTo = (_element) => {}
+            // number of visible cards in the carousel
+            carousel.numberOfVisibleCards = 4;
+            carousel.mostRightVisibleIndex = 3;
+            carousel.mostLeftVisibleIndex = 0;
+            // as the carousel is on the most left, it should not move
+            carousel.prev(5);
+            chai.expect(carousel.mostRightVisibleIndex).to.equal(3);
+            chai.expect(carousel.mostLeftVisibleIndex).to.equal(0);
+            // done with the test
+            done();
+        });
+    });
+
+    it('should move left', (done) => {
+        let carousel = createDummyCarousel({
+            container: 'my-carousel',
+            fetchCards: (_chunkSize) => new FakeRestApi().request(10, 10, 0)
+        });
+        // after the first batch loaded
+        carousel.onFirstBatchLoaded(() => {
+            // stub the method, as we don't need html activity
+            carousel.slideTo = (_element) => {}
+            // number of visible cards in the carousel
+            carousel.numberOfVisibleCards = 4;
+            carousel.mostRightVisibleIndex = 7;
+            carousel.mostLeftVisibleIndex = 4;
+            // as the carousel is on the most left
+            carousel.prev(5);
+            chai.expect(carousel.mostRightVisibleIndex).to.equal(3);
+            chai.expect(carousel.mostLeftVisibleIndex).to.equal(0);
+            // done with the test
+            done();
+        });
+    });
+
+    it('should move right', (done) => {
+        let carousel = createDummyCarousel({
+            container: 'my-carousel',
+            fetchCards: (_chunkSize) => new FakeRestApi().request(6, 6, 0)
+        });
         // after the first batch loaded
         carousel.onFirstBatchLoaded(() => {
             // stub the method, as we don't need html activity
             carousel.slideTo = (_element) => {}
             // 3rd element is on the most right of the carousel
             carousel.mostRightVisibleIndex = 2;
-            // forward
+
             carousel.next(3);
             chai.expect(carousel.mostRightVisibleIndex).to.equal(5);
             chai.expect(carousel.mostLeftVisibleIndex).to.equal(3);
-            // backward
-            carousel.prev(2);
-            chai.expect(carousel.mostRightVisibleIndex).to.equal(3);
-            chai.expect(carousel.mostLeftVisibleIndex).to.equal(1);
             // done with the test
             done();
         });
-    });
-
-    it('should slide left and right', () => {
-        
-    });
-
-    it('should swipe left and right', () => {
-
     });
 });

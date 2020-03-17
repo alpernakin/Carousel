@@ -33,7 +33,7 @@ export class Carousel {
     /** card width in pixel */
     cardWidth = 0;
     /** how many cards to slide each time */
-    numberOfCardsToSlide = 1;
+    numberOfVisibleCards = 1;
     /** index of the most left visible card */
     mostLeftVisibleIndex = 0;
     /** index of the most right visible card */
@@ -112,9 +112,9 @@ export class Carousel {
             // set the card width
             this.cardWidth = cardElements[0].clientWidth;
             // we find out the number of cards to slide after the first load
-            this.numberOfCardsToSlide = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
+            this.numberOfVisibleCards = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
             // it also points out the most right visible card
-            this.mostRightVisibleIndex = Math.min(this.numberOfCardsToSlide, cardElements.length) - 1;
+            this.mostRightVisibleIndex = Math.min(this.numberOfVisibleCards, cardElements.length) - 1;
             // if the number of cards are in chunk size
             // it means that there would be more cards
             if (cardElements.length === this.chunkSize)
@@ -488,7 +488,7 @@ export class Carousel {
     }
 
     /** slides the carousel backward */
-    prev(numberOfCardsToSlide = this.numberOfCardsToSlide) {
+    prev(numberOfCardsToSlide = this.numberOfVisibleCards) {
         if (!numberOfCardsToSlide) return;
         let cards = this.getCardElements();
         // if there is no card to slide
@@ -503,7 +503,7 @@ export class Carousel {
     }
 
     /** slides the carousel forward */
-    next(numberOfCardsToSlide = this.numberOfCardsToSlide) {
+    next(numberOfCardsToSlide = this.numberOfVisibleCards) {
         if (!numberOfCardsToSlide) return;
         let cards = this.getCardElements();
         // if there is no card to slide
