@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: "./src/carousel.js",
+    entry: './src/bundle.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
@@ -28,12 +28,8 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                use: [
-                    "style-loader",
-                    "css-loader",
-                    "sass-loader"
-                ]
-            },
+                use: ["style-loader", "css-loader", "sass-loader"]
+            }
         ]
     }
 }

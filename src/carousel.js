@@ -1,37 +1,37 @@
-import './carousel.scss';
-
 /** options type definition */
 export class Options {
-    container;
-    title;
-    subtitle;
-    fetchCards;
+    container = "";
+    title = "";
+    subtitle = "";
+    fetchCards = Promise.resolve(null);
 }
 
 /** card type definition */
 export class Card {
-    image;
-    type;
-    duration;
-    durationLabel;
-    title;
-    cardinality;
-    language;
+    image = "";
+    type = "";
+    duration = 0;
+    durationLabel = "";
+    title = "";
+    cardinality = "";
+    language = "";
 }
 
 export class Carousel {
     /** carousel container */
-    containerEl;
+    containerEl = null;
     /** the container for the cards and scroll */
-    cardContainerEl;
+    cardContainerEl = null;
     /** overlay arrow to go prev */
-    leftArrowEl;
+    leftArrowEl = null;
     /** overlay arrow to go next */
-    rightArrowEl;
+    rightArrowEl = null;
     /** callback to execute on new card demand */
-    fetchCards;
+    fetchCards = Promise.resolve(null);
     /** chunk size of cards being loaded */
     chunkSize = 6;
+    /** card width in pixel */
+    cardWidth = 0;
     /** how many cards to slide each time */
     numberOfCardsToSlide = 1;
     /** index of the most left visible card */
@@ -40,6 +40,8 @@ export class Carousel {
     mostRightVisibleIndex = 0;
     /** keep track of number of cards */
     numberOfCards = 0;
+    /** event emitter */
+    onFirstBatchEventEmitter = document.createElement("object");
 
     /** css class dictionary */
     css = {
@@ -49,7 +51,7 @@ export class Carousel {
         header: "header",
         iconContainer: "icon-container",
         icon: "icon",
-        iconName: "face",
+        iconName: "view_carousel",
         titleContainer: "title-container",
         title: "title",
         arrow: "arrow",
@@ -85,13 +87,8 @@ export class Carousel {
         leftSliderIcon: "keyboard_arrow_left"
     }
 
-    /**
-     * @param {Options} options 
-     */
+    /** @param {Options} options */
     constructor(options) {
-        // init the card and placeholder lists
-        this.cards = [];
-        this.placeholders = [];
         // bind the fetch cards event
         this.fetchCards = options.fetchCards;
         // initialize the container
@@ -107,39 +104,86 @@ export class Carousel {
         // bind scrolling events
         this.rightArrowEl.addEventListener('click', () => this.next());
         this.leftArrowEl.addEventListener('click', () => this.prev());
-        // bind the mouse in and out events for slider state
-        this.initHoverEvent();
-        // first card load into the carousel
-        this.loadNewCards().then(numberOfItems => {
+        // make first card load into the carousel
+        this.loadCards().then(cardElements => {
+            // if there is no card returned by the API
+            // nothing to do then
+            if (!cardElements || !cardElements.length) return;
+            // set the card width
+            this.cardWidth = cardElements[0].clientWidth;
             // we find out the number of cards to slide after the first load
-            this.numberOfCardsToSlide = this.getNumberOfVisibleCards();
+            this.numberOfCardsToSlide = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
             // it also points out the most right visible card
-            this.mostRightVisibleIndex = this.numberOfCardsToSlide - 1;
+            this.mostRightVisibleIndex = Math.min(this.numberOfCardsToSlide, cardElements.length) - 1;
             // if the number of cards are in chunk size
             // it means that there would be more cards
-            if (numberOfItems === this.chunkSize)
+            if (cardElements.length === this.chunkSize)
                 this.addSeeMoreCard();
+            // bind the mouse in and out events for slider state
+            this.initHoverEvent();
+            // bind the touch events for swiping
+            this.initSwipeEvent();
+            // emit the event first batch loaded
+            this.emitFirstBatchLoadEvent(cardElements);
         });
     }
 
-    /**
-     * @returns {number} of cards that can fit in carousel scroll
+    /** 
+     * listens first batch load event
+     * @param {(event: CustomEvent) => {}} callback
      */
-    getNumberOfVisibleCards() {
-        if (!this.cardContainerEl)
-            throw Error("The card container has not been instanced.");
-        // get the cards from the container
-        let cards = this.getCardElements();
-        // if there is any cards
-        if (cards && cards.length)
-            return Math.round(this.cardContainerEl.clientWidth / cards[0].clientWidth);
-        // if there is no card, then no need to slide anyway
-        return 0;
+    onFirstBatchLoaded(callback) {
+        // if no callback provided, no need to listen the event
+        if (!callback) return;
+        // listen the event first batch
+        this.onFirstBatchEventEmitter
+            .addEventListener('firstbatch', event => callback(event));
     }
 
     /**
-     * initialize visibility states check through the events
+     * emit the first batch loaded event
+     * @param {HTMLElement[]} cards 
      */
+    emitFirstBatchLoadEvent(cards) {
+        this.onFirstBatchEventEmitter
+            .dispatchEvent(new CustomEvent('firstbatch', { detail: { cards: cards } }));
+    }
+
+    /** bind events for swiping the carousel */
+    initSwipeEvent() {
+        if (!this.cardContainerEl)
+            throw Error("The card container has not been instanced.");
+        // x coordinate of the last touch
+        let xLastTouch = null;
+        // when the user starts touch event, init the touch point
+        this.cardContainerEl.addEventListener('touchstart', (event) =>
+            xLastTouch = event.touches[0].clientX);
+        // when the user ends touch event, refresh the last touch point
+        this.cardContainerEl.addEventListener('touchend', (_event) =>
+            xLastTouch = null);
+        // while swiping the carousel
+        this.cardContainerEl.addEventListener('touchmove', (event) => {
+            if (!xLastTouch) return;
+            // get the current x coordinate
+            let xCurr = event.touches[0].clientX;
+            // get the difference between first and last touched points
+            let xDiff = xLastTouch - xCurr;
+            // find out the number of cards to swipe
+            let numberOfCardsToSwipe = Math.round(Math.abs(xDiff) / this.cardWidth);
+            // if any to swipe
+            if (numberOfCardsToSwipe) {
+                // compare the first and last points
+                // left swipe
+                if (xDiff > 0) this.next(numberOfCardsToSwipe);
+                // right swipe
+                else this.prev(numberOfCardsToSwipe);
+                // remember the last position
+                xLastTouch = xCurr;
+            }
+        });
+    }
+
+    /** bind events for left - right arrow visibility states */
     initHoverEvent() {
         if (!this.containerEl)
             throw Error("The container has not been instanced.");
@@ -320,14 +364,15 @@ export class Carousel {
 
     /** 
      * loads new cards from the API 
-     * @returns {number} number of items returned by the API
+     * @returns {HTMLElement[]} cards being added
      */
-    loadNewCards() {
+    loadCards() {
         return new Promise((resolve, reject) => {
             if (!this.fetchCards) {
-                resolve(0);
+                resolve([]);
                 return;
             }
+            let cards = [];
             // temporary placeholders
             this.addPlaceholders();
             // request the items from the API
@@ -342,10 +387,13 @@ export class Carousel {
                         // convert to the human readable duration
                         card.durationLabel = this.secondsToDurationLabel(card.duration);
                         // create HTML card element and add it
-                        this.addCard(this.createCardElement(card))
+                        let cardElement = this.createCardElement(card);
+                        this.addCard(cardElement);
+                        // add in the promise collection
+                        cards.push(cardElement);
                     });
 
-                    resolve(items.length);
+                    resolve(cards);
                 },
                 // the request failed!
                 reason => reject(reason));
@@ -417,7 +465,7 @@ export class Carousel {
             // remove the current card
             this.removeCard(seeMoreCard);
             // then try to load new cards from the API
-            this.loadNewCards().then(numberOfItems => {
+            this.loadCards().then(numberOfItems => {
                 // if there are cards from the API, then slide on them
                 if (numberOfItems) this.next();
                 // if the number of cards are in chunk size
@@ -434,36 +482,46 @@ export class Carousel {
      * move the most left and right indexes to have a consistent track
      * @param {number} diff index to increment, could be below 0
      */
-    shiftIndexes(diff) {
+    moveIndexes(diff) {
         this.mostLeftVisibleIndex += diff;
         this.mostRightVisibleIndex += diff;
     }
 
     /** slides the carousel backward */
-    prev() {
+    prev(numberOfCardsToSlide = this.numberOfCardsToSlide) {
+        if (!numberOfCardsToSlide) return;
         let cards = this.getCardElements();
         // if there is no card to slide
         if (!cards || cards.length === 0) return;
-        let to = this.mostLeftVisibleIndex - this.numberOfCardsToSlide;
+        let to = this.mostLeftVisibleIndex - numberOfCardsToSlide;
         // if it cross the line
         if (to < 0) to = 0;
         // here we slide!
-        cards[to].scrollIntoView({ behavior: 'smooth' });
+        this.slideTo(cards[to]);
         // remember the indices
-        this.shiftIndexes(to - this.mostLeftVisibleIndex);
+        this.moveIndexes(to - this.mostLeftVisibleIndex);
     }
 
     /** slides the carousel forward */
-    next() {
+    next(numberOfCardsToSlide = this.numberOfCardsToSlide) {
+        if (!numberOfCardsToSlide) return;
         let cards = this.getCardElements();
         // if there is no card to slide
         if (!cards || cards.length === 0) return;
-        let to = this.mostRightVisibleIndex + this.numberOfCardsToSlide;
+        let to = this.mostRightVisibleIndex + numberOfCardsToSlide;
         // if it cross the line
         if (to >= cards.length) to = cards.length - 1;
         // here we slide!
-        cards[to].scrollIntoView({ behavior: 'smooth' });
+        this.slideTo(cards[to]);
         // remember the indices
-        this.shiftIndexes(to - this.mostRightVisibleIndex);
+        this.moveIndexes(to - this.mostRightVisibleIndex);
+    }
+
+    /**
+     * slides to the given element
+     * @param {HTMLElement} element to slide
+     */
+    slideTo(element) {
+        element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
     }
 }
