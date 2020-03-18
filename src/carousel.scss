@@ -1,9 +1,4 @@
-@function em2px($target) {
-    @if $target == 0 { @return 0 }
-    @return ($target / 1em) * 16 + 0px;
-}
-
-.carousel-container {
+.dcb-carousel-container {
     $carousel_blue: #2865a7;
     $carousel_white: #ffffff;
     $carousel_grey: #9c9c9c;
@@ -60,7 +55,7 @@
             $collection_bottom_margin: .2em;
             $collection_bottom_height: .18em;
             // card height + collection bars height + shadow height
-            $slide_full_height: $card_full_height + $collection_bottom_height * 2 + .2em;
+            $slide_full_height: $card_full_height + $collection_bottom_height * 2 + .1em;
 
             cursor: pointer;
             position: relative;
@@ -162,7 +157,6 @@
                 }
 
                 .placeholder {
-                    // source https://codepen.io/JCLee/pen/dyPejGV
                     .skeleton-box {
                         background: $loading_grey;
                         &::after {
@@ -233,14 +227,14 @@
                 height: $card_full_height;
                 width: $slider_width;
                 background: $overlay_color;
+                align-items: center;
+                justify-content: center;
 
                 .arrow {
                     position: absolute;
                     font-size: $arrow_size;
                     color: $carousel_white;
                     margin: auto;
-                    left: (em2px($slider_width) - em2px($arrow_size)) / 2;
-                    top: (em2px($card_full_height) - em2px($arrow_size)) / 2;
                 }
             }
         }
@@ -252,8 +246,8 @@
         display: none !important;
     }
     
-    .d-block {
-        display: block !important;
+    .d-flex {
+        display: flex !important;
     }
     
     .left {

@@ -47,7 +47,7 @@ export class Carousel {
     /** css class dictionary */
     css = {
         // carousel
-        container: 'carousel-container',
+        container: 'dcb-carousel-container',
         // header section
         header: "header",
         iconContainer: "icon-container",
@@ -80,8 +80,8 @@ export class Carousel {
         bar2: "bar2",
         seeMore: "see-more",
         // extras
-        d_none: "d-none",
-        d_block: "d-block",
+        displayNone: "d-none",
+        displayFlex: "d-flex",
         iconClassName: "material-icons",
         titleArrowIcon: "keyboard_arrow_right",
         rightSliderIcon: "keyboard_arrow_right",
@@ -90,7 +90,7 @@ export class Carousel {
 
     /** @param {Options} options */
     constructor(options) {
-        this.chunkSize = options.chunkSize;
+        this.chunkSize = options.chunkSize ? options.chunkSize : 6;
         // bind the fetch cards event
         this.fetchCards = options.fetchCards;
         // initialize the container
@@ -205,11 +205,14 @@ export class Carousel {
         if (!this.cardContainerEl)
             throw Error("The card container has not been instanced.");
         // clear the element class list for display
-        let clearDisplayCSS = (element) => element.classList.remove(this.css.d_none, this.css.d_block);
+        let clearDisplayCSS = (element) =>
+            element.classList.remove(this.css.displayNone, this.css.displayFlex);
         // when the mouse is over the root container
         this.containerEl.addEventListener('mouseover', () => {
-            let arrowLeftClass = this.isLeftSliderArrowVisible() ? this.css.d_block : this.css.d_none;
-            let arrowRightClass = this.isRightSliderArrowVisible() ? this.css.d_block : this.css.d_none;
+            let arrowLeftClass = this.isLeftSliderArrowVisible() ?
+                this.css.displayFlex : this.css.displayNone;
+            let arrowRightClass = this.isRightSliderArrowVisible() ?
+                this.css.displayFlex : this.css.displayNone;
             // clear the classes
             clearDisplayCSS(this.leftArrowEl);
             clearDisplayCSS(this.rightArrowEl);
@@ -541,6 +544,6 @@ export class Carousel {
      */
     slideTo(element) {
         if (element)
-            element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+            element.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
     }
 }
