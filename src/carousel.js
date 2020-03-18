@@ -34,7 +34,7 @@ export class Carousel {
     /** card width in pixel */
     cardWidth = 0;
     /** how many cards to slide each time */
-    numberOfVisibleCards = 1;
+    maxNumberOfVisibleCards = 1;
     /** index of the most left visible card */
     mostLeftVisibleIndex = 0;
     /** index of the most right visible card */
@@ -90,9 +90,9 @@ export class Carousel {
 
     /** @param {Options} options */
     constructor(options) {
-        this.chunkSize = options.chunkSize ? options.chunkSize : 6;
+        this.chunkSize = options.chunkSize || 6;
         // bind the fetch cards callback
-        this.fetchCards = options.fetchCards;
+        this.fetchCards = options.fetchCards || Promise.resolve([]);
         // initialize the container
         this.containerEl = document.getElementById(options.container);
         this.containerEl.className = this.css.container;
@@ -115,13 +115,15 @@ export class Carousel {
             if (!cardElements || !cardElements.length) return;
             // set the card width to understand the number of visible cards
             this.cardWidth = cardElements[0].clientWidth;
-            this.numberOfVisibleCards = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
+            this.maxNumberOfVisibleCards = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
             // if the number of cards are in chunk size
             // it means that there would be more cards coming
             if (cardElements.length === this.chunkSize)
                 this.addSeeMoreCard();
+
+            let numberOfVisibleCards = Math.min(this.maxNumberOfVisibleCards, this.getCardElements().length);
             // it also points out the most right visible card
-            this.mostRightVisibleIndex = Math.min(this.numberOfVisibleCards, this.getCardElements().length) - 1;
+            this.mostRightVisibleIndex = numberOfVisibleCards > 0 ? numberOfVisibleCards - 1 : 0;
             // emit the event first batch loaded
             this.createFirstBatchLoadEvent(cardElements);
         });
@@ -486,12 +488,12 @@ export class Carousel {
             // remove the current card
             this.removeCard(seeMoreCard);
             // then try to load new cards from the API
-            this.loadCards().then(numberOfItems => {
+            this.loadCards().then(cards => {
                 // if there are cards from the API, then slide on them
-                if (numberOfItems) this.next();
+                if (cards && cards.length) this.next();
                 // if the number of cards are in chunk size
                 // it means that there would be more cards
-                if (numberOfItems === this.chunkSize)
+                if (cards && cards.length === this.chunkSize)
                     this.addSeeMoreCard();
             });
         });
@@ -509,7 +511,7 @@ export class Carousel {
     }
 
     /** slides the carousel backward */
-    prev(numberOfCardsToSlide = this.numberOfVisibleCards) {
+    prev(numberOfCardsToSlide = this.maxNumberOfVisibleCards) {
         if (!numberOfCardsToSlide) return;
         let cards = this.getCardElements();
         // if there is no card to slide
@@ -524,7 +526,7 @@ export class Carousel {
     }
 
     /** slides the carousel forward */
-    next(numberOfCardsToSlide = this.numberOfVisibleCards) {
+    next(numberOfCardsToSlide = this.maxNumberOfVisibleCards) {
         if (!numberOfCardsToSlide) return;
         let cards = this.getCardElements();
         // if there is no card to slide

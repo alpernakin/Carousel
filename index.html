@@ -9,7 +9,7 @@
 <body>
     <div style="margin: 0 0 20px 0">
         <h3>Simple carousel</h3>
-        <p>This example is to show flexibility for sizing the carousel in a container</p>
+        <p>This example is to show a simple carousel.</p>
         <hr>
     </div>
     <div>
@@ -18,7 +18,7 @@
 
     <div style="margin: 20px 0">
         <h3>Carousel in a container with a smaller font-size</h3>
-        <p>This example is to show flexibility for sizing carousel in a container</p>
+        <p>This example is to show flexibility for sizing carousel in a container.</p>
         <hr>
     </div>
     <div style="font-size: 12px;">
@@ -34,6 +34,15 @@
     </div>
     <div style="width: 1000px">
         <div id="my-carousel-3"></div>
+    </div>
+
+    <div style="margin: 20px 0">
+        <h3>Carousel with a REST API that always returns cards in chunk size</h3>
+        <p>This example is to show the behaviour of a never-ending carousel.</p>
+        <hr>
+    </div>
+    <div>
+        <div id="my-carousel-4"></div>
     </div>
 </body>
 
@@ -61,6 +70,13 @@
             title: "Fresh and just uploaded content",
             subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
             fetchCards: (chunkSize) => fakeApi.request(chunkSize)
+        });
+
+        var carousel3 = new carouselLib.Carousel({
+            container: "my-carousel-4",
+            title: "Fresh and just uploaded content",
+            subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            fetchCards: (chunkSize) => fakeApi.request(chunkSize, chunkSize)
         });
     };
 </script>
