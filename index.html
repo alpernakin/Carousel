@@ -7,17 +7,31 @@
 </head>
 
 <body>
-    <h3 style="margin: 20px 0;">Simple carousel</h3>
+    <div style="margin: 0 0 20px 0">
+        <h3>Simple carousel</h3>
+        <p>This example is to show flexibility for sizing the carousel in a container</p>
+        <hr>
+    </div>
     <div>
         <div id="my-carousel-1"></div>
     </div>
 
-    <h3 style="margin: 50px 0;">Smaller carousel with less font-size</h3>
+    <div style="margin: 20px 0">
+        <h3>Carousel in a container with a smaller font-size</h3>
+        <p>This example is to show flexibility for sizing carousel in a container</p>
+        <hr>
+    </div>
     <div style="font-size: 12px;">
         <div id="my-carousel-2"></div>
     </div>
 
-    <h3 style="margin: 50px 0;">Carousel with restricting container, please delete this for mobile test</h3>
+    <div style="margin: 20px 0">
+        <h3>Carousel in a container with a certain width</h3>
+        <p>This example is to show stretching and shrinking the carousel.
+            If you like to have a better responsive experience, it is recommended to remove this example,
+            since the container has a certain size, which would be inconvenient for responsive / mobile screens.</p>
+        <hr>
+    </div>
     <div style="width: 1000px">
         <div id="my-carousel-3"></div>
     </div>
@@ -25,6 +39,7 @@
 
 <script type="text/javascript">
     window.onload = function () {
+        // please check ./src/fakeRestApi.js
         var fakeApi = new carouselLib.FakeRestApi();
 
         var carousel = new carouselLib.Carousel({

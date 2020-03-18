@@ -41,7 +41,7 @@ export class Carousel {
     mostRightVisibleIndex = 0;
     /** keep track of number of cards */
     numberOfCards = 0;
-    /** event emitter */
+    /** event emitter for the first batch / cards load */
     onFirstBatchEventEmitter = document.createElement("object");
 
     /** css class dictionary */
@@ -91,7 +91,7 @@ export class Carousel {
     /** @param {Options} options */
     constructor(options) {
         this.chunkSize = options.chunkSize ? options.chunkSize : 6;
-        // bind the fetch cards event
+        // bind the fetch cards callback
         this.fetchCards = options.fetchCards;
         // initialize the container
         this.containerEl = document.getElementById(options.container);
@@ -116,12 +116,12 @@ export class Carousel {
             // set the card width to understand the number of visible cards
             this.cardWidth = cardElements[0].clientWidth;
             this.numberOfVisibleCards = Math.round(this.cardContainerEl.clientWidth / this.cardWidth);
-            // it also points out the most right visible card
-            this.mostRightVisibleIndex = Math.min(this.numberOfVisibleCards, cardElements.length) - 1;
             // if the number of cards are in chunk size
             // it means that there would be more cards coming
             if (cardElements.length === this.chunkSize)
                 this.addSeeMoreCard();
+            // it also points out the most right visible card
+            this.mostRightVisibleIndex = Math.min(this.numberOfVisibleCards, this.getCardElements().length) - 1;
             // emit the event first batch loaded
             this.createFirstBatchLoadEvent(cardElements);
         });
@@ -129,7 +129,7 @@ export class Carousel {
 
     /** 
      * listens first batch load event
-     * @param {(event: CustomEvent) => {}} callback
+     * @param {(event: CustomEvent) => {}} callback args: event => event.detail.cards are the card elements placed in the carousel
      */
     listenFirstBatchLoad(callback) {
         // if no callback provided, no need to listen the event
@@ -422,7 +422,7 @@ export class Carousel {
     }
 
     /**
-     * @returns {HTMLElement[]} card elements in the carousel
+     * @returns {HTMLCollection} card elements in the carousel
      */
     getCardElements() {
         if (!this.cardContainerEl)
