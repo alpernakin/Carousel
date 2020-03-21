@@ -6,7 +6,7 @@ The main implementation takes place under [**src folder**](https://github.com/al
 
 [**carousel.scss**](https://github.com/alpernakin/Carousel/blob/master/src/carousel.scss): Carousel component styling
 
-[**carousel.js**](https://github.com/alpernakin/Carousel/blob/master/src/carousel.js): Carousel component implementation with ES7
+[**carousel.js**](https://github.com/alpernakin/Carousel/blob/master/src/carousel.js): Carousel component implementation with ES6
 
 [**fakeRestApi.js**](https://github.com/alpernakin/Carousel/blob/master/src/fakeRestApi.js): Fake REST API implementation for testing and demo.
 
