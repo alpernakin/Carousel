@@ -12,6 +12,8 @@ The main implementation takes place under [**src folder**](https://github.com/al
 
 [**bundle.js**](https://github.com/alpernakin/Carousel/blob/master/src/bundle.js) To bundle the scss and js files through webpack.
 
+## Installation
+
 To setup `npm install`
 
 To bundle `npm run webpack` in dist folder
